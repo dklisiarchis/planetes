@@ -1,0 +1,8 @@
+node_modules
+.svelte-kit
+build
+nbody-wasm/target
+nbody-wasm/pkg
+.DS_Store
+.env
+.env.*

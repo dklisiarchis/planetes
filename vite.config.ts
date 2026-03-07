@@ -1,0 +1,25 @@
+import tailwindcss from '@tailwindcss/vite';
+import { sveltekit } from '@sveltejs/kit/vite';
+import { defineConfig } from 'vite';
+import wasm from 'vite-plugin-wasm';
+import topLevelAwait from 'vite-plugin-top-level-await';
+
+export default defineConfig({
+	plugins: [wasm(), topLevelAwait(), tailwindcss(), sveltekit()],
+	ssr: {
+		noExternal: ['three', 'troika-three-text']
+	},
+	optimizeDeps: {
+		exclude: ['@dimforge/rapier3d-compat']
+	},
+	worker: {
+		format: 'es',
+		plugins: () => [wasm(), topLevelAwait()]
+	},
+	server: {
+		fs: {
+			// Allow serving WASM files from the nbody-wasm crate output
+			allow: ['..']
+		}
+	}
+});
