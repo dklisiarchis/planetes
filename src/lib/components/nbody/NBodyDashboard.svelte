@@ -16,9 +16,8 @@
 		Folder,
 		Checkbox,
 		Monitor,
-		FpsGraph
 	} from 'svelte-tweakpane-ui';
-	import { SYSTEMS, getSystem } from '$lib/sim/nbody/presets';
+	import { getSystem } from '$lib/sim/nbody/presets';
 
 	// Sync param changes to the worker
 	$effect(() => { setG(nbody.gConstant); });
@@ -34,13 +33,6 @@
 	$effect(() => {
 		nbody.gConstant = system.defaults.g * gMultiplier;
 	});
-
-	function switchSystem(id: string) {
-		applySystemDefaults(id);
-		scaleState.value = getSystem(id).visualScale;
-		gMultiplier = 1.0;
-		resetNBody();
-	}
 
 	function executeWhatIf(action: { type: string; bodyIndex?: number; value: number }) {
 		switch (action.type) {
@@ -62,8 +54,6 @@
 		resetNBody();
 	}
 
-	const systemList = Object.values(SYSTEMS);
-
 	let bodyNames = $derived(system.bodyNames);
 
 	// Formatted stats for selected body
@@ -82,23 +72,7 @@
 
 <div class="pointer-events-auto">
 	<Pane title={system.name} position="fixed">
-		<FpsGraph label="FPS" />
-
-		<Separator />
-
-		<Folder title="System" expanded={true}>
-			{#each systemList as sys}
-				<Button
-					title={sys.name}
-					on:click={() => switchSystem(sys.id)}
-					disabled={nbody.systemId === sys.id}
-				/>
-			{/each}
-		</Folder>
-
-		<Separator />
-
-		<Folder title="Time" expanded={true}>
+		<Folder title="Time" expanded={false}>
 			<Slider
 				bind:value={nbody.timeScale}
 				min={0.1} max={100} step={0.1}
@@ -137,7 +111,7 @@
 
 		<Separator />
 
-		<Folder title="Gravity" expanded={true}>
+		<Folder title="Gravity" expanded={false}>
 			<Slider
 				bind:value={gMultiplier}
 				min={0.01} max={5} step={0.01}
@@ -154,7 +128,7 @@
 
 		<Separator />
 
-		<Folder title="What If?" expanded={true}>
+		<Folder title="What If?" expanded={false}>
 			{#each system.whatIf as action}
 				<Button title={action.label} on:click={() => executeWhatIf(action)} />
 			{/each}
@@ -162,23 +136,15 @@
 
 		<Separator />
 
-		<Folder title="Rendering">
+		<Folder title="Rendering" expanded={false}>
 			<Slider bind:value={nbody.trailLength} min={0} max={500} step={10} label="Trail Length" />
 		</Folder>
 
 		<Separator />
 
-		<Folder title="Playback" expanded={true}>
+		<Folder title="Playback" expanded={false}>
 			<Checkbox bind:value={nbody.isPlaying} label="Playing" />
 			<Button title="Reset & Restart" on:click={resetAll} />
-		</Folder>
-
-		<Separator />
-
-		<Folder title="Stats" expanded={false}>
-			<Monitor value={nbody.currentStep} label="Steps" />
-			<Monitor value={ring.count} label="Ring Buffer" />
-			<Monitor value={nbody.gConstant} label="G" />
 		</Folder>
 	</Pane>
 </div>

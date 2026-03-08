@@ -1,13 +1,16 @@
 <script lang="ts">
 	import { T, useTask, useThrelte } from '@threlte/core';
 	import { positions } from '$lib/sim/nbody/bridge.svelte';
+	import { consumedBodies } from '$lib/sim/nbody/state.svelte';
 	import type { BodyVisuals, BodyRenderConfig } from '$lib/sim/nbody/presets';
 	import * as THREE from 'three';
 
 	const { camera } = useThrelte();
 
-	let { visuals, renderConfig }: { visuals: BodyVisuals; renderConfig: BodyRenderConfig[] } =
-		$props();
+	let { visuals, renderConfig }: {
+		visuals: BodyVisuals;
+		renderConfig: BodyRenderConfig[];
+	} = $props();
 
 	const radii = $derived(visuals.radii);
 	const names = $derived(visuals.names ?? []);
@@ -61,6 +64,14 @@
 		for (let i = 0; i < renderConfig.length; i++) {
 			const g = meshRefs[i];
 			if (!g) continue;
+
+			// Hide consumed bodies
+			if (consumedBodies.set.has(i)) {
+				g.visible = false;
+				continue;
+			}
+			g.visible = true;
+
 			const off = i * 3;
 			g.position.set(data[off], data[off + 1], data[off + 2]);
 

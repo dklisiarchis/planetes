@@ -9,8 +9,27 @@
 
 	import NBody from '$lib/scenes/NBody.svelte';
 	import NBodyDashboard from '$lib/components/nbody/NBodyDashboard.svelte';
+	import EventLog from '$lib/components/nbody/EventLog.svelte';
 
 	let slug = $derived(page.params.slug ?? '');
+
+	// Simple FPS counter
+	let fps = $state(0);
+	let frameCount = 0;
+	let lastTime = 0;
+	function updateFps(now: number) {
+		frameCount++;
+		if (now - lastTime >= 1000) {
+			fps = frameCount;
+			frameCount = 0;
+			lastTime = now;
+		}
+		requestAnimationFrame(updateFps);
+	}
+	onMount(() => {
+		lastTime = performance.now();
+		requestAnimationFrame(updateFps);
+	});
 	let system = $derived(SYSTEMS[slug] ? getSystem(slug) : null);
 
 	// Loading state
@@ -107,10 +126,16 @@
 	</div>
 {/if}
 
-<!-- Dashboard overlay (visible after loading) -->
+<!-- FPS counter + Dashboard overlay (visible after loading) -->
 {#if !loading && system}
+	<div class="pointer-events-none absolute top-3 left-1/2 -translate-x-1/2 z-10">
+		<span class="font-mono text-xs text-white/25">{fps} FPS</span>
+	</div>
 	<div class="pointer-events-auto absolute top-4 right-4">
 		<NBodyDashboard />
+	</div>
+	<div class="pointer-events-none absolute bottom-4 left-4 z-10">
+		<EventLog />
 	</div>
 {/if}
 

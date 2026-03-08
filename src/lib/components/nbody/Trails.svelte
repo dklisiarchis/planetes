@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { T, useTask } from '@threlte/core';
 	import { ring } from '$lib/sim/nbody/bridge.svelte';
+	import { consumedBodies } from '$lib/sim/nbody/state.svelte';
 	import * as THREE from 'three';
 
 	let { bodyCount, trailLength }: { bodyCount: number; trailLength: number } = $props();
@@ -37,6 +38,7 @@
 		let vi = 0;
 
 		for (const bodyIdx of trackedIndices) {
+			if (consumedBodies.set.has(bodyIdx)) continue;
 			for (let f = 0; f < segsPerTrail; f++) {
 				const frameA = ring.count - len + f;
 				const frameB = frameA + 1;

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { T, useTask } from '@threlte/core';
-	import { nbody } from '$lib/sim/nbody/state.svelte';
+	import { nbody, consumedBodies, eventLog } from '$lib/sim/nbody/state.svelte';
 	import {
 		initWorker,
 		terminateWorker,
@@ -13,9 +13,11 @@
 	import Starfield from '$lib/components/nbody/Starfield.svelte';
 	import Bloom from '$lib/components/nbody/Bloom.svelte';
 	import SunGlow from '$lib/components/nbody/SunGlow.svelte';
+	import BlackHole from '$lib/components/nbody/BlackHole.svelte';
 	import PlanetLabels from '$lib/components/nbody/PlanetLabels.svelte';
 	import AsteroidBelt from '$lib/components/nbody/AsteroidBelt.svelte';
 	import BodyTracker from '$lib/components/nbody/BodyTracker.svelte';
+	import Collisions from '$lib/components/nbody/Collisions.svelte';
 
 	let ready = $state(false);
 	let visuals = $state<BodyVisuals | null>(null);
@@ -30,6 +32,8 @@
 
 		const result = sys.generate();
 		visuals = result.visuals;
+		consumedBodies.set = new Set();
+		eventLog.events = [];
 		initWorker(result.bodies, nbody.gConstant, nbody.softening);
 		nbody.currentStep = 0;
 		ready = true;
@@ -69,7 +73,16 @@
 
 {#if ready && visuals}
 	<SystemBodies {visuals} renderConfig={system.renderConfig} />
-	<SunGlow config={system.starGlow} />
+
+	{#if system.blackHole}
+		<BlackHole config={system.blackHole} />
+		{#if !system.blackHole.bodyIndices.includes(0)}
+			<SunGlow config={system.starGlow} />
+		{/if}
+	{:else}
+		<SunGlow config={system.starGlow} />
+	{/if}
+
 	<PlanetLabels {visuals} />
 
 	{#if system.asteroidBelt}
@@ -85,4 +98,5 @@
 	{/if}
 
 	<BodyTracker />
+	<Collisions {visuals} bodyCount={system.bodyCount} blackHoleIndices={system.blackHole?.bodyIndices} />
 {/if}

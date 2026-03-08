@@ -2,6 +2,7 @@
 	import { T, useTask, useThrelte } from '@threlte/core';
 	import { Text } from '@threlte/extras';
 	import { positions } from '$lib/sim/nbody/bridge.svelte';
+	import { consumedBodies } from '$lib/sim/nbody/state.svelte';
 	import type { BodyVisuals } from '$lib/sim/nbody/presets';
 	import * as THREE from 'three';
 
@@ -35,6 +36,11 @@
 		for (let i = 0; i < names.length; i++) {
 			const g = refs[i];
 			if (!g) continue;
+			if (consumedBodies.set.has(i)) {
+				g.visible = false;
+				continue;
+			}
+			g.visible = true;
 			const off = i * 3;
 
 			// Adaptive offset and scale based on camera distance

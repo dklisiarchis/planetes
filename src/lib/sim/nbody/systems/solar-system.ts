@@ -1,0 +1,87 @@
+import { generateFromKeplerian, G_AU, type SystemConfig } from './shared';
+
+const PLANETS = [
+	{ name: 'Mercury', a: 0.38709843, e: 0.20563661, I: 7.00559432,
+	  L: 252.25166724, wBar: 77.45771895, Omega: 48.33961819,
+	  mass: 1.66014e-7, color: [0.7, 0.6, 0.5] as const, radius: 0.04 },
+	{ name: 'Venus', a: 0.72332102, e: 0.00676399, I: 3.39777545,
+	  L: 181.97970850, wBar: 131.76755713, Omega: 76.67261496,
+	  mass: 2.44783e-6, color: [0.9, 0.7, 0.3] as const, radius: 0.06 },
+	{ name: 'Earth', a: 1.00000018, e: 0.01673163, I: 0.00054346,
+	  L: 100.46691572, wBar: 102.93005885, Omega: -5.11260389,
+	  mass: 3.00348e-6, color: [0.2, 0.5, 1.0] as const, radius: 0.065 },
+	{ name: 'Mars', a: 1.52371243, e: 0.09336511, I: 1.85181869,
+	  L: -4.56813164, wBar: -23.91744784, Omega: 49.71320984,
+	  mass: 3.22715e-7, color: [0.9, 0.3, 0.2] as const, radius: 0.05 },
+	{ name: 'Jupiter', a: 5.20248019, e: 0.04853590, I: 1.29861416,
+	  L: 34.33479152, wBar: 14.27495244, Omega: 100.29282654,
+	  mass: 9.54789e-4, color: [0.8, 0.6, 0.3] as const, radius: 0.14 },
+	{ name: 'Saturn', a: 9.54149883, e: 0.05550825, I: 2.49424102,
+	  L: 50.07571329, wBar: 92.86136063, Omega: 113.63998702,
+	  mass: 2.85886e-4, color: [0.9, 0.8, 0.5] as const, radius: 0.12 },
+	{ name: 'Uranus', a: 19.18797948, e: 0.04685740, I: 0.77298127,
+	  L: 314.20276625, wBar: 172.43404441, Omega: 73.96250215,
+	  mass: 4.36625e-5, color: [0.5, 0.8, 0.9] as const, radius: 0.09 },
+	{ name: 'Neptune', a: 30.06952752, e: 0.00895439, I: 1.77005520,
+	  L: 304.22289287, wBar: 46.68158724, Omega: 131.78635853,
+	  mass: 5.15138e-5, color: [0.3, 0.4, 0.9] as const, radius: 0.09 },
+	{ name: 'Pluto', a: 39.48211675, e: 0.24882730, I: 17.14001206,
+	  L: 238.92903833, wBar: 224.06891629, Omega: 110.30393684,
+	  mass: 6.58e-9, color: [0.8, 0.7, 0.6] as const, radius: 0.035 },
+];
+
+const STAR = { name: 'Sun', color: [1.0, 0.9, 0.3] as const, radius: 0.18, emissive: 2.0 };
+
+export const solarSystem: SystemConfig = {
+	id: 'solar-system',
+	name: 'Solar System',
+	description: 'Our home system — 8 planets and Pluto orbiting a G-type main-sequence star. Features Saturn\'s rings, Earth\'s cloud layer, and a detailed asteroid belt.',
+	cardGradient: 'from-amber-500/20 via-orange-600/10 to-transparent',
+	bodyCount: PLANETS.length + 1,
+	defaults: {
+		g: G_AU,
+		dt: 0.0005,
+		softening: 0.001,
+		timeScale: 5,
+	},
+	visualScale: 1.0,
+	bodyNames: [STAR.name, ...PLANETS.map(p => p.name)],
+	renderConfig: [
+		{ texture: '/textures/planets/sun.jpg', isStar: true, rotationSpeed: 0.001 },
+		{ texture: '/textures/planets/mercury.jpg', rotationSpeed: 0.002 },
+		{ texture: '/textures/planets/venus_atmosphere.jpg', rotationSpeed: -0.0015 },
+		{ texture: '/textures/planets/earth_day.jpg', hasAtmosphere: true, cloudsTexture: '/textures/planets/earth_clouds.jpg', rotationSpeed: 0.01 },
+		{ texture: '/textures/planets/mars.jpg', rotationSpeed: 0.009 },
+		{ texture: '/textures/planets/jupiter.jpg', rotationSpeed: 0.02 },
+		{ texture: '/textures/planets/saturn.jpg', hasRings: true, ringTexture: '/textures/planets/saturn_ring.png', rotationSpeed: 0.018 },
+		{ texture: '/textures/planets/uranus.jpg', rotationSpeed: -0.012 },
+		{ texture: '/textures/planets/neptune.jpg', rotationSpeed: 0.011 },
+		{ texture: '/textures/planets/mercury.jpg', rotationSpeed: -0.008 },
+	],
+	starGlow: {
+		gradientStops: [
+			'rgba(255, 220, 100, 0.8)',
+			'rgba(255, 180, 50, 0.4)',
+			'rgba(255, 140, 20, 0.1)',
+			'rgba(255, 100, 0, 0)',
+		],
+		lightColor: '#fff4e0',
+		lightIntensity: 3,
+		lightDistance: 100,
+	},
+	asteroidBelt: { count: 3000, inner: 2.1, outer: 3.3 },
+	whatIf: [
+		{ label: '☀️ Sun 2× Mass', type: 'star_mass', value: 2.0 },
+		{ label: '☀️ Sun ½× Mass', type: 'star_mass', value: 0.5 },
+		{ label: '☀️ Sun 10× Mass', type: 'star_mass', value: 10.0 },
+		{ label: '🪐 Remove Jupiter', type: 'body_mass', bodyIndex: 5, value: 0 },
+		{ label: '🪐 Jupiter → Star', type: 'body_mass', bodyIndex: 5, value: 0.08 },
+		{ label: '🌍 Earth 100× Mass', type: 'body_mass', bodyIndex: 3, value: 3.0e-4 },
+		{ label: '💫 2× Gravity', type: 'g_mult', value: 2.0 },
+		{ label: '💫 ½× Gravity', type: 'g_mult', value: 0.5 },
+		{ label: '💫 No Gravity', type: 'g_mult', value: 0.001 },
+	],
+	generate() {
+		return generateFromKeplerian(1.0, STAR, PLANETS);
+	},
+};

@@ -81,9 +81,35 @@ export function deselectBody() {
 	bodySelection.name = '';
 }
 
+/** Bodies consumed by black holes — hidden from rendering, mass zeroed */
+export const consumedBodies = $state({ set: new Set<number>() });
+
+export function consumeBody(index: number) {
+	consumedBodies.set.add(index);
+}
+
+/** Simulation event log */
+export interface SimEvent {
+	type: 'collision' | 'consumed' | 'escaped';
+	time: string;
+	message: string;
+}
+
+const MAX_EVENTS = 50;
+export const eventLog = $state<{ events: SimEvent[] }>({ events: [] });
+
+export function pushEvent(type: SimEvent['type'], message: string) {
+	eventLog.events = [
+		...eventLog.events.slice(-(MAX_EVENTS - 1)),
+		{ type, time: simTimeLabel(), message }
+	];
+}
+
 export function resetNBody() {
 	nbody.isPlaying = false;
 	nbody.currentStep = 0;
 	nbody.generation += 1;
+	consumedBodies.set = new Set();
+	eventLog.events = [];
 	deselectBody();
 }

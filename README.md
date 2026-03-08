@@ -10,6 +10,8 @@ An interactive 3D planetary simulation built with SvelteKit, Three.js, and a Rus
 
 **TRAPPIST-1** — 7 Earth-sized worlds orbiting an ultra-cool red dwarf 40 light-years away. Three planets in the habitable zone. A near-resonant orbital chain that's uniquely fragile to perturbation.
 
+**Kepler-90** — 8 planets crammed within 1 AU — a compressed mini solar system 2,790 light-years away. Features a "super-puff" gas giant with the density of cotton candy and a Jupiter-class world at Earth's orbital distance.
+
 ## Features
 
 - **Real physics** — 4th-order Runge-Kutta integrator running in a Rust WASM Web Worker. Keplerian orbital elements from JPL ephemeris data.
